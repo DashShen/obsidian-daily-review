@@ -1,5 +1,5 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
-import DailyReviewPlugin from "./main";
+import { App, PluginSettingTab, Setting, createEl } from "obsidian";
+import DailyReviewPlugin from "../main";
 import { DailyReviewSettings, DEFAULT_SETTINGS } from "./types";
 
 export class DailyReviewSettingTab extends PluginSettingTab {
@@ -155,8 +155,8 @@ export class DailyReviewSettingTab extends PluginSettingTab {
       if (e.key === 'Enter') handleAdd();
     };
 
-    setting.controls.appendChild(inputEl);
-    setting.controls.appendChild(addBtn);
+    setting.controlEl.appendChild(inputEl);
+    setting.controlEl.appendChild(addBtn);
 
     renderTags();
   }
@@ -227,8 +227,8 @@ export class DailyReviewSettingTab extends PluginSettingTab {
       if (e.key === 'Enter') handleAdd();
     };
 
-    setting.controls.appendChild(inputEl);
-    setting.controls.appendChild(addBtn);
+    setting.controlEl.appendChild(inputEl);
+    setting.controlEl.appendChild(addBtn);
 
     renderFolders();
   }
