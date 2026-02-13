@@ -55,4 +55,62 @@ export class NoteFilter {
              normalizedPath.startsWith(folderPath + '/');
     });
   }
+
+  // Extract tags from file content
+  async getTagsFromFile(file: TFile): Promise<string[]> {
+    const content = await this.vault.read(file);
+    const tags = new Set<string>();
+
+    // Extract inline tags (e.g., #tag)
+    const inlineTagRegex = /(?<!\w)#([\p{L}\p{N}_-]+)/gu;
+    let match;
+    while ((match = inlineTagRegex.exec(content)) !== null) {
+      tags.add('#' + match[1]);
+    }
+
+    // Extract tags from frontmatter YAML
+    const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
+    const frontmatterMatch = content.match(frontmatterRegex);
+    if (frontmatterMatch) {
+      const yamlContent = frontmatterMatch[1];
+
+      // Match tags: array format
+      const arrayTagRegex = /tags:\s*\[(.*?)\]/;
+      const arrayMatch = yamlContent.match(arrayTagRegex);
+      if (arrayMatch) {
+        const tagsStr = arrayMatch[1];
+        const tagList = tagsStr.match(/"([^"]+)"/g);
+        if (tagList) {
+          tagList.forEach(tag => {
+            tags.add(tag.replace(/"/g, '').startsWith('#') ? tag.replace(/"/g, '') : '#' + tag.replace(/"/g, ''));
+          });
+        }
+      }
+
+      // Match tags: list format
+      const listTagRegex = /^-\s*(.+)$/gm;
+      let listMatch;
+      const inTagsSection = yamlContent.includes('tags:');
+      if (inTagsSection) {
+        const lines = yamlContent.split('\n');
+        let inTags = false;
+        for (const line of lines) {
+          if (line.trim() === 'tags:') {
+            inTags = true;
+            continue;
+          }
+          if (inTags) {
+            if (line.startsWith('- ')) {
+              const tag = line.replace(/^\s*-\s*/, '').trim();
+              tags.add(tag.startsWith('#') ? tag : '#' + tag);
+            } else if (line.match(/^\w+:/)) {
+              break; // Next YAML section
+            }
+          }
+        }
+      }
+    }
+
+    return Array.from(tags);
+  }
 }
