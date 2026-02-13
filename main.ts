@@ -46,6 +46,13 @@ export default class DailyReviewPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
+  async loadStyles() {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `${this.manifest.dir}/styles.css`;
+    document.head.appendChild(link);
+  }
+
   async startReview() {
     const filter = new NoteFilter(this.app.vault, this.settings);
     const notes = await filter.getNotesForReview();
