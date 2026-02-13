@@ -10,6 +10,9 @@ export default class DailyReviewPlugin extends Plugin {
   async onload() {
     console.log('Loading Daily Review plugin');
 
+    // Load styles
+    this.loadStyles();
+
     // Load settings
     await this.loadSettings();
 
