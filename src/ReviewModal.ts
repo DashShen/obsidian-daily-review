@@ -4,6 +4,7 @@ export class ReviewModal extends Modal {
   private files: TFile[];
   private currentIndex: number = 0;
   private markedAsRead: Set<number> = new Set();
+  private currentRenderIndex: number = -1;
 
   constructor(
     app: App,
@@ -36,14 +37,9 @@ export class ReviewModal extends Modal {
 
     // Render first note
     this.renderNote();
-
-    // Handle modal close
-    this.onClose = () => {
-      contentEl.empty();
-    };
   }
 
-  private renderNote() {
+  private async renderNote() {
     const { contentEl } = this;
 
     // Clear existing content
@@ -73,42 +69,58 @@ export class ReviewModal extends Modal {
     const file = this.files[this.currentIndex];
 
     // Update progress
-    const progressEl = contentEl.querySelector('.daily-review-progress') as HTMLElement;
-    if (progressEl) {
-      progressEl.setText(`${this.currentIndex + 1} / ${this.files.length}`);
+    const progressEl = contentEl.querySelector('.daily-review-progress');
+    if (!progressEl) {
+      return;
     }
+    progressEl.setText(`${this.currentIndex + 1} / ${this.files.length}`);
 
     // Render note
-    const noteContainer = contentEl.querySelector('.daily-review-note-container') as HTMLElement;
-    if (noteContainer) {
-      // Note header
-      const noteHeader = noteContainer.createDiv('daily-review-note-header');
+    const noteContainer = contentEl.querySelector('.daily-review-note-container');
+    if (!noteContainer) {
+      return;
+    }
 
-      noteHeader.createEl('h3', {
-        text: file.basename,
-        cls: 'daily-review-note-title'
-      });
+    // Note header
+    const noteHeader = noteContainer.createDiv('daily-review-note-header');
 
-      const metaInfo = noteHeader.createDiv('daily-review-note-meta');
-      metaInfo.createSpan({ text: `📁 ${file.path}` });
+    noteHeader.createEl('h3', {
+      text: file.basename,
+      cls: 'daily-review-note-title'
+    });
 
-      // Read tags
-      this.app.vault.read(file).then(content => {
-        const tags = this.extractTags(content);
-        if (tags.length > 0) {
-          const tagEl = metaInfo.createSpan({ text: ' 🏷️ ' });
-          tags.forEach(tag => {
-            tagEl.createSpan({ text: tag, cls: 'daily-review-tag' });
-          });
-        }
-      });
+    const metaInfo = noteHeader.createDiv('daily-review-note-meta');
+    metaInfo.createSpan({ text: `📁 ${file.path}` });
 
-      // Note content
+    // Track current render index for race condition prevention
+    this.currentRenderIndex = this.currentIndex;
+
+    try {
+      // Read file once for both tags and content (fixes C1)
+      const fileContent = await this.app.vault.read(file);
+
+      // Check if user navigated away while reading (fixes C2)
+      if (this.currentRenderIndex !== this.currentIndex) {
+        return;
+      }
+
+      // Extract and display tags
+      const tags = this.extractTags(fileContent);
+      if (tags.length > 0) {
+        const tagEl = metaInfo.createSpan({ text: ' 🏷️ ' });
+        tags.forEach(tag => {
+          tagEl.createSpan({ text: tag, cls: 'daily-review-tag' });
+        });
+      }
+
+      // Display note content
       const noteContent = noteContainer.createDiv('daily-review-note-content');
-
-      this.app.vault.read(file).then(content => {
-        noteContent.setText(content);
-      });
+      noteContent.setText(fileContent);
+    } catch (error) {
+      // Error handling for vault.read() (fixes I3)
+      console.error('Failed to read note:', error);
+      const noteContent = noteContainer.createDiv('daily-review-note-content');
+      noteContent.setText('Failed to load note content.');
     }
 
     // Update action buttons
@@ -133,7 +145,7 @@ export class ReviewModal extends Modal {
 
   private renderActions() {
     const { contentEl } = this;
-    let actionContainer = contentEl.querySelector('.daily-review-actions') as HTMLElement;
+    let actionContainer = contentEl.querySelector('.daily-review-actions');
 
     if (!actionContainer) {
       actionContainer = contentEl.createDiv('daily-review-actions');
@@ -161,7 +173,7 @@ export class ReviewModal extends Modal {
 
   private renderNavigation() {
     const { contentEl } = this;
-    let navContainer = contentEl.querySelector('.daily-review-navigation') as HTMLElement;
+    let navContainer = contentEl.querySelector('.daily-review-navigation');
 
     if (!navContainer) {
       navContainer = contentEl.createDiv('daily-review-navigation');
@@ -195,15 +207,31 @@ export class ReviewModal extends Modal {
   }
 
   private navigatePrevious() {
+    // Add safety counter to prevent infinite loops (fixes C3)
+    let iterations = 0;
+    const maxIterations = this.files.length;
+
     do {
       this.currentIndex = (this.currentIndex - 1 + this.files.length) % this.files.length;
+      iterations++;
+      if (iterations > maxIterations) {
+        break;
+      }
     } while (this.markedAsRead.has(this.currentIndex) && this.hasAvailableNotes());
     this.renderNote();
   }
 
   private navigateNext() {
+    // Add safety counter to prevent infinite loops (fixes C3)
+    let iterations = 0;
+    const maxIterations = this.files.length;
+
     do {
       this.currentIndex = (this.currentIndex + 1) % this.files.length;
+      iterations++;
+      if (iterations > maxIterations) {
+        break;
+      }
     } while (this.markedAsRead.has(this.currentIndex) && this.hasAvailableNotes());
     this.renderNote();
   }
@@ -225,12 +253,12 @@ export class ReviewModal extends Modal {
       existingProgress.empty();
     }
 
-    let actionContainer = contentEl.querySelector('.daily-review-actions') as HTMLElement;
+    const actionContainer = contentEl.querySelector('.daily-review-actions');
     if (actionContainer) {
       actionContainer.empty();
     }
 
-    let navContainer = contentEl.querySelector('.daily-review-navigation') as HTMLElement;
+    const navContainer = contentEl.querySelector('.daily-review-navigation');
     if (navContainer) {
       navContainer.empty();
     }
