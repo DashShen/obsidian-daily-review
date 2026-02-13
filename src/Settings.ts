@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, createEl } from "obsidian";
+import { App, PluginSettingTab, Setting } from "obsidian";
 import DailyReviewPlugin from "../main";
 import { DailyReviewSettings, DEFAULT_SETTINGS } from "./types";
 
@@ -151,7 +151,7 @@ export class DailyReviewSettingTab extends PluginSettingTab {
     };
 
     addBtn.onclick = handleAdd;
-    inputEl.onkeypress = (e) => {
+    inputEl.onkeypress = (e: KeyboardEvent) => {
       if (e.key === 'Enter') handleAdd();
     };
 
@@ -223,7 +223,7 @@ export class DailyReviewSettingTab extends PluginSettingTab {
     };
 
     addBtn.onclick = handleAdd;
-    inputEl.onkeypress = (e) => {
+    inputEl.onkeypress = (e: KeyboardEvent) => {
       if (e.key === 'Enter') handleAdd();
     };
 
