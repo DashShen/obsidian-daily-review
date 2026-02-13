@@ -117,10 +117,9 @@ export class ReviewModal extends Modal {
       const noteContent = noteContainer.createDiv('daily-review-note-content');
       this.app.vault.read(file).then(content => {
         // Render markdown to HTML using Obsidian's MarkdownRenderer
-        this.app.markdownRenderer.render({
+        (this.app as any).markdownRenderer.render({
           content: content,
-          el: noteContent,
-          component: this.app
+          el: noteContent
         });
       });
     } catch (error) {
