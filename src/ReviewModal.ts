@@ -115,7 +115,14 @@ export class ReviewModal extends Modal {
 
       // Display note content
       const noteContent = noteContainer.createDiv('daily-review-note-content');
-      noteContent.setText(fileContent);
+      this.app.vault.read(file).then(content => {
+        // Render markdown to HTML using Obsidian's MarkdownRenderer
+        this.app.markdownRenderer.render({
+          content: content,
+          el: noteContent,
+          component: this.app
+        });
+      });
     } catch (error) {
       // Error handling for vault.read() (fixes I3)
       console.error('Failed to read note:', error);
