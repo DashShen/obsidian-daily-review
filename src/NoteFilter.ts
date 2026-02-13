@@ -113,4 +113,23 @@ export class NoteFilter {
 
     return Array.from(tags);
   }
+
+  // Check if file's tags match the filter criteria
+  matchesTagFilters(tags: string[]): boolean {
+    // Must not have any excluded tags
+    const hasExcludedTag = this.settings.excludeTags.some(excludedTag =>
+      tags.includes(excludedTag)
+    );
+    if (hasExcludedTag) return false;
+
+    // If includeTags is set, must have at least one included tag
+    if (this.settings.includeTags.length > 0) {
+      const hasIncludedTag = this.settings.includeTags.some(includedTag =>
+        tags.includes(includedTag)
+      );
+      if (!hasIncludedTag) return false;
+    }
+
+    return true;
+  }
 }
