@@ -132,4 +132,47 @@ export class NoteFilter {
 
     return true;
   }
+
+  // Fisher-Yates shuffle algorithm
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  // Get filtered notes for review
+  async getNotesForReview(): Promise<TFile[]> {
+    // Step 1: Get all markdown files
+    const allFiles = this.vault.getMarkdownFiles();
+
+    // Step 2: Filter by time range and excluded folders (no content read)
+    let candidates = allFiles.filter(file =>
+      this.isInTimeRange(file) &&
+      !this.isExcludedFolder(file)
+    );
+
+    // Step 3: Shuffle and take candidates (2x buffer for tag filtering)
+    candidates = this.shuffleArray(candidates);
+    const bufferSize = this.settings.reviewCount * 2;
+    const candidateFiles = candidates.slice(0, bufferSize);
+
+    // Step 4: Read content and filter by tags (only for candidates)
+    const validFiles: TFile[] = [];
+    for (const file of candidateFiles) {
+      const tags = await this.getTagsFromFile(file);
+      if (this.matchesTagFilters(tags)) {
+        validFiles.push(file);
+      }
+      if (validFiles.length >= this.settings.reviewCount) {
+        break;
+      }
+    }
+
+    return validFiles;
+  }
 }
+
+export { NoteFilter };
