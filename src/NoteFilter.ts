@@ -175,4 +175,3 @@ export class NoteFilter {
   }
 }
 
-export { NoteFilter };
