@@ -1,24 +1,30 @@
 import { TFile } from "obsidian";
 
-export type TimeRange = 'today' | 'week' | 'month' | 'quarter' | 'all';
-
 export interface DailyReviewSettings {
-  timeRange: TimeRange;
   reviewCount: number;
-  includeTags: string[];
-  excludeTags: string[];
+  recentDays: number;
+  includeFolders: string[];
   excludeFolders: string[];
-  includeSubfolders: boolean;
 }
 
 export const DEFAULT_SETTINGS: DailyReviewSettings = {
-  timeRange: 'month',
   reviewCount: 10,
-  includeTags: [],
-  excludeTags: ['#template', '#archive'],
-  excludeFolders: ['Templates', 'Archive'],
-  includeSubfolders: true,
+  recentDays: 7,
+  includeFolders: [],
+  excludeFolders: [],
 };
+
+export interface DailyReviewSessionState {
+  date: string;
+  configKey: string;
+  notePaths: string[];
+  currentNotePath: string | null;
+}
+
+export interface DailyReviewData {
+  settings: DailyReviewSettings;
+  session: DailyReviewSessionState | null;
+}
 
 export interface NoteCandidate {
   file: TFile;

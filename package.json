@@ -1,6 +1,6 @@
 {
   "name": "daily-review",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Daily Review Plugin for Obsidian",
   "main": "main.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
   },
   "keywords": [],
-  "author": "Your Name",
+  "author": "shenda",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.11.6",

@@ -27,6 +27,7 @@
 .daily-review-note-container {
   max-height: 60vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 1.5rem;
 }
 
@@ -57,32 +58,61 @@
 
 /* Note Content */
 .daily-review-note-content {
-  white-space: pre-wrap;
+  white-space: normal;
   word-wrap: break-word;
   line-height: 1.6;
   font-size: 0.95rem;
 }
 
-/* Action Buttons */
-.daily-review-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid var(--background-modifier-border);
+/* Compact markdown spacing inside review modal */
+.daily-review-note-content > *:first-child {
+  margin-top: 0;
 }
 
-.daily-review-actions button {
-  flex: 1;
-  max-width: 200px;
+.daily-review-note-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.daily-review-note-content p,
+.daily-review-note-content ul,
+.daily-review-note-content ol,
+.daily-review-note-content blockquote {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.daily-review-note-content h1,
+.daily-review-note-content h2,
+.daily-review-note-content h3,
+.daily-review-note-content h4,
+.daily-review-note-content h5,
+.daily-review-note-content h6 {
+  margin-top: 0.9em;
+  margin-bottom: 0.35em;
+  line-height: 1.35;
 }
 
 /* Navigation */
 .daily-review-navigation {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--background-modifier-border);
+  column-gap: 1rem;
+}
+
+.daily-review-nav-prev {
+  justify-self: start;
+}
+
+.daily-review-nav-open {
+  justify-self: center;
+  min-width: 220px;
+}
+
+.daily-review-nav-next {
+  justify-self: end;
 }
 
 /* Complete Message */
@@ -104,6 +134,37 @@
   gap: 0.5rem;
 }
 
+.daily-review-folder-setting {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.daily-review-folder-setting .setting-item-control {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.daily-review-folder-setting .setting-item-control .daily-review-folder-input-wrapper {
+  min-width: 280px;
+}
+
+.daily-review-folder-list {
+  width: 100%;
+  margin-top: 0.65rem;
+  padding: 0.35rem;
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary-alt);
+}
+
+.daily-review-folder-list-readable {
+  border-color: var(--color-green);
+}
+
+.daily-review-folder-list-blocked {
+  border-color: var(--color-red);
+}
+
 .daily-review-tag-item,
 .daily-review-folder-item {
   display: flex;
@@ -114,9 +175,43 @@
   border-radius: 4px;
 }
 
+.daily-review-folder-item {
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem 0.2rem 0.55rem;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.daily-review-folder-item.is-readable {
+  background: rgba(46, 160, 67, 0.12);
+  border-color: rgba(46, 160, 67, 0.4);
+}
+
+.daily-review-folder-item.is-blocked {
+  background: rgba(248, 81, 73, 0.1);
+  border-color: rgba(248, 81, 73, 0.35);
+}
+
+@supports (color: color-mix(in srgb, red, transparent)) {
+  .daily-review-folder-item.is-readable {
+    background: color-mix(in srgb, var(--color-green), transparent 88%);
+    border-color: color-mix(in srgb, var(--color-green), transparent 60%);
+  }
+
+  .daily-review-folder-item.is-blocked {
+    background: color-mix(in srgb, var(--color-red), transparent 90%);
+    border-color: color-mix(in srgb, var(--color-red), transparent 65%);
+  }
+}
+
 .daily-review-tag-text,
 .daily-review-folder-text {
   /* No specific styles needed */
+}
+
+.daily-review-folder-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 0.2rem 0.35rem;
 }
 
 .daily-review-tag-remove,
@@ -136,14 +231,65 @@
   color: var(--text-normal);
 }
 
+.daily-review-folder-remove {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--background-modifier-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
 .daily-review-tag-input,
 .daily-review-folder-input {
-  margin-right: 0.5rem;
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--background-modifier-border);
   border-radius: 4px;
   background: var(--background-primary);
   color: var(--text-normal);
+}
+
+.daily-review-folder-input-wrapper {
+  position: relative;
+  margin-right: 0.5rem;
+}
+
+.daily-review-folder-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  min-width: 320px;
+  max-height: 360px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-s);
+  z-index: 1000;
+  padding: 6px;
+  text-align: left;
+}
+
+.daily-review-folder-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.daily-review-folder-suggestion-item:hover,
+.daily-review-folder-suggestion-item.is-active {
+  background: var(--background-modifier-hover);
 }
 
 /* Mobile Responsive */
@@ -158,11 +304,40 @@
     max-height: calc(100vh - 200px);
   }
 
-  .daily-review-actions {
-    flex-direction: column;
+  .daily-review-navigation {
+    grid-template-columns: 1fr;
+    row-gap: 0.5rem;
   }
 
-  .daily-review-actions button {
-    max-width: 100%;
+  .daily-review-nav-prev,
+  .daily-review-nav-open,
+  .daily-review-nav-next {
+    justify-self: stretch;
   }
+
+  .daily-review-folder-setting .setting-item-control {
+    justify-content: stretch;
+    gap: 0.5rem;
+  }
+
+  .daily-review-folder-setting .setting-item-control .daily-review-folder-input-wrapper {
+    min-width: 0;
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .daily-review-folder-input,
+  .daily-review-folder-setting .setting-item-control button {
+    min-height: 38px;
+    font-size: 16px;
+  }
+
+  .daily-review-folder-suggestions {
+    min-width: 0;
+    max-height: min(50vh, calc(100vh - env(safe-area-inset-bottom) - 180px));
+  }
+}
+
+.daily-review-mobile .daily-review-navigation button {
+  min-height: 40px;
 }
