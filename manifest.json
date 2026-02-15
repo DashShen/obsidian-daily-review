@@ -3,7 +3,7 @@
   "name": "Daily Review",
   "version": "1.0.0",
   "minAppVersion": "0.15.0",
-  "description": "Review your notes with a focused, random daily review session",
+  "description": "Review your notes with a focused, random daily review session.",
   "author": "shenda",
   "authorUrl": "https://github.com/DashShen",
   "isDesktopOnly": false
