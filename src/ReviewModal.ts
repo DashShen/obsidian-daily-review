@@ -1,9 +1,10 @@
-import { App, Modal, TFile, MarkdownRenderer, Platform } from "obsidian";
+import { App, Modal, TFile, MarkdownRenderer, Platform, Component } from "obsidian";
 import type DailyReviewPlugin from "../main";
 
 export class ReviewModal extends Modal {
   private files: TFile[];
   private plugin: DailyReviewPlugin;
+  private markdownComponent: Component;
   private currentIndex: number = 0;
   private currentRenderIndex: number = -1;
   private readonly isMobileApp: boolean;
@@ -17,6 +18,7 @@ export class ReviewModal extends Modal {
     super(app);
     this.files = files;
     this.plugin = plugin;
+    this.markdownComponent = new Component();
     this.isMobileApp = typeof Platform !== 'undefined' && !!(Platform as { isMobileApp?: boolean }).isMobileApp;
     if (this.files.length > 0) {
       this.currentIndex = Math.max(0, Math.min(initialIndex, this.files.length - 1));
@@ -24,6 +26,7 @@ export class ReviewModal extends Modal {
   }
 
   onOpen() {
+    this.markdownComponent.load();
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass('daily-review-modal');
@@ -31,19 +34,19 @@ export class ReviewModal extends Modal {
 
     // Header
     const header = contentEl.createDiv('daily-review-header');
-    header.createEl('h2', { text: 'Daily Review' });
+    header.createEl('h2', { text: 'Daily review' });
 
     // Progress display
-    const progressEl = header.createDiv('daily-review-progress');
+    header.createDiv('daily-review-progress');
 
     // Content container
-    const noteContainer = contentEl.createDiv('daily-review-note-container');
+    contentEl.createDiv('daily-review-note-container');
 
     // Navigation buttons
-    const navContainer = contentEl.createDiv('daily-review-navigation');
+    contentEl.createDiv('daily-review-navigation');
 
     // Render first note
-    this.renderNote();
+    void this.renderNote();
   }
 
   private async renderNote() {
@@ -103,7 +106,7 @@ export class ReviewModal extends Modal {
 
       // Display note content
       const noteContent = noteContainer.createDiv('daily-review-note-content');
-      await MarkdownRenderer.render(this.app, fileContent, noteContent, file.path, this.plugin);
+      await MarkdownRenderer.render(this.app, fileContent, noteContent, file.path, this.markdownComponent);
     } catch (error) {
       // Error handling for vault.read() (fixes I3)
       console.error('Failed to read note:', error);
@@ -127,11 +130,11 @@ export class ReviewModal extends Modal {
 
     // Previous button
     const prevBtn = navContainer.createEl('button', {
-      text: '← Previous',
+      text: '← previous',
       cls: 'daily-review-nav-prev'
     });
     prevBtn.onclick = () => {
-      this.navigatePrevious();
+      void this.navigatePrevious();
     };
 
     const openBtn = navContainer.createEl('button', {
@@ -139,33 +142,33 @@ export class ReviewModal extends Modal {
       cls: 'mod-cta daily-review-nav-open'
     });
     openBtn.onclick = () => {
-      this.openInMainWindow();
+      void this.openInMainWindow();
     };
 
     // Next button
     const nextBtn = navContainer.createEl('button', {
-      text: 'Next →',
+      text: 'next →',
       cls: 'daily-review-nav-next'
     });
     nextBtn.onclick = () => {
-      this.navigateNext();
+      void this.navigateNext();
     };
   }
 
-  private openInMainWindow() {
+  private async openInMainWindow() {
     const file = this.files[this.currentIndex];
-    this.app.workspace.openLinkText(file.path, '', true);
+    await this.app.workspace.openLinkText(file.path, '', true);
     this.close();
   }
 
-  private navigatePrevious() {
+  private async navigatePrevious() {
     this.currentIndex = (this.currentIndex - 1 + this.files.length) % this.files.length;
-    this.renderNote();
+    await this.renderNote();
   }
 
-  private navigateNext() {
+  private async navigateNext() {
     this.currentIndex = (this.currentIndex + 1) % this.files.length;
-    this.renderNote();
+    await this.renderNote();
   }
 
   private showCompleteMessage() {
@@ -189,11 +192,12 @@ export class ReviewModal extends Modal {
     const completeMsg = contentEl.createEl('div', {
       cls: 'daily-review-complete'
     });
-    completeMsg.createEl('h3', { text: 'Review Complete!' });
+    completeMsg.createEl('h3', { text: 'Review complete!' });
     completeMsg.createEl('p', { text: 'You\'ve reviewed all notes in this session.' });
   }
 
   onClose() {
+    this.markdownComponent.unload();
     const { contentEl } = this;
     contentEl.empty();
   }

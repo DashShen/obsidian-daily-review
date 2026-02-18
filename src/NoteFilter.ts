@@ -75,7 +75,7 @@ export class NoteFilter {
     });
   }
 
-  async getNotesForReview(dayKey: string): Promise<TFile[]> {
+  getNotesForReview(dayKey: string): TFile[] {
     const allFiles = this.vault.getMarkdownFiles();
 
     const candidates = allFiles.filter(file =>

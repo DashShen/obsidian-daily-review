@@ -14,22 +14,20 @@ export default class DailyReviewPlugin extends Plugin {
   private session: DailyReviewSessionState | null = null;
 
   async onload() {
-    console.log('Loading Daily Review plugin');
-
     // Load settings
     await this.loadSettings();
 
     // Add ribbon icon
-    this.addRibbonIcon('dice', 'Daily Review', () => {
-      this.startReview();
+    this.addRibbonIcon('dice', 'Daily review', () => {
+      void this.startReview();
     });
 
     // Add command
     this.addCommand({
       id: 'start-review',
-      name: 'Start Review',
+      name: 'Start review',
       callback: () => {
-        this.startReview();
+        void this.startReview();
       },
     });
 
@@ -37,9 +35,7 @@ export default class DailyReviewPlugin extends Plugin {
     this.addSettingTab(new DailyReviewSettingTab(this.app, this));
   }
 
-  onunload() {
-    console.log('Unloading Daily Review plugin');
-  }
+  onunload() {}
 
   private getTodayKey(): string {
     const now = new Date();
@@ -120,7 +116,7 @@ export default class DailyReviewPlugin extends Plugin {
       notePaths = this.session.notePaths;
       currentPath = this.session.currentNotePath;
     } else {
-      const notesForToday = await filter.getNotesForReview(todayKey);
+      const notesForToday = filter.getNotesForReview(todayKey);
       notePaths = notesForToday.map(file => file.path);
       currentPath = notePaths.length > 0 ? notePaths[0] : null;
       this.session = {
@@ -137,7 +133,7 @@ export default class DailyReviewPlugin extends Plugin {
       .filter((file): file is TFile => file instanceof TFile);
 
     if (notes.length === 0 && this.isValidSessionForToday(this.session)) {
-      const notesForToday = await filter.getNotesForReview(todayKey);
+      const notesForToday = filter.getNotesForReview(todayKey);
       notes = notesForToday;
       notePaths = notes.map(file => file.path);
       currentPath = notePaths[0] ?? null;

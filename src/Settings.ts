@@ -20,10 +20,12 @@ export class DailyReviewSettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.toggleClass('daily-review-mobile-settings', this.isMobileApp);
 
-    containerEl.createEl('h2', { text: 'Daily Review Settings' });
+    new Setting(containerEl)
+      .setName('Daily review settings')
+      .setHeading();
 
     new Setting(containerEl)
-      .setName('Review Count')
+      .setName('Review count')
       .setDesc('How many notes to review each session')
       .addText(text => {
         text
@@ -43,8 +45,8 @@ export class DailyReviewSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName('Recent Days')
-      .setDesc('Prioritize notes from the last N days; older notes fill the remainder if needed')
+      .setName('Recent days')
+      .setDesc('Prioritize notes from the last N days. Older notes fill the remainder if needed.')
       .addText(text => {
         text
           .setPlaceholder('7')
@@ -64,7 +66,7 @@ export class DailyReviewSettingTab extends PluginSettingTab {
 
     this.addFolderListSetting(
       containerEl,
-      'Include Folders',
+      'Include folders',
       'Only review notes from included folders (leave empty to include all folders)',
       'includeFolders',
       'Add include folder path...'
@@ -72,7 +74,7 @@ export class DailyReviewSettingTab extends PluginSettingTab {
 
     this.addFolderListSetting(
       containerEl,
-      'Exclude Folders',
+      'Exclude folders',
       'Skip notes from excluded folders',
       'excludeFolders',
       'Add exclude folder path...'
