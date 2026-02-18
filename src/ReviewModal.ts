@@ -147,7 +147,7 @@ export class ReviewModal extends Modal {
 
     // Next button
     const nextBtn = navContainer.createEl('button', {
-      text: 'next →',
+      text: 'Next →',
       cls: 'daily-review-nav-next'
     });
     nextBtn.onclick = () => {

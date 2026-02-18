@@ -21,7 +21,7 @@ export class DailyReviewSettingTab extends PluginSettingTab {
     containerEl.toggleClass('daily-review-mobile-settings', this.isMobileApp);
 
     new Setting(containerEl)
-      .setName('Daily review settings')
+      .setName('General')
       .setHeading();
 
     new Setting(containerEl)
@@ -46,7 +46,7 @@ export class DailyReviewSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Recent days')
-      .setDesc('Prioritize notes from the last N days. Older notes fill the remainder if needed.')
+      .setDesc('Prioritize notes from the last N days, older notes fill the remainder if needed.')
       .addText(text => {
         text
           .setPlaceholder('7')
