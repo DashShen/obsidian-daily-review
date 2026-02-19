@@ -21,10 +21,6 @@ export class DailyReviewSettingTab extends PluginSettingTab {
     containerEl.toggleClass('daily-review-mobile-settings', this.isMobileApp);
 
     new Setting(containerEl)
-      .setName('General')
-      .setHeading();
-
-    new Setting(containerEl)
       .setName('Review count')
       .setDesc('How many notes to review each session')
       .addText(text => {
