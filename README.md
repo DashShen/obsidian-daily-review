@@ -14,20 +14,13 @@ Daily Review is a focused review plugin for Obsidian. It creates a deterministic
 
 ## Installation
 
-### Community Plugins (after approval)
+### Manual Installation
 
-1. Open `Settings -> Community plugins` in Obsidian.
-2. Disable safe mode if needed.
-3. Search for `Daily Review` and install.
-4. Enable the plugin.
-
-### Manual / BRAT (development testing)
-
-Copy `manifest.json`, `main.js`, and `styles.css` into:
-
-`.obsidian/plugins/daily-review/`
-
-Then reload Obsidian and enable the plugin.
+1. Create the plugin folder in your vault:
+   `.obsidian/plugins/daily-review/`
+2. Copy `manifest.json`, `main.js`, and `styles.css` into that folder.
+3. Reload Obsidian.
+4. Open `Settings -> Community plugins` and enable `Daily Review`.
 
 ## Settings
 
