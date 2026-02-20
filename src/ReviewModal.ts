@@ -130,7 +130,7 @@ export class ReviewModal extends Modal {
 
     // Previous button
     const prevBtn = navContainer.createEl('button', {
-      text: '← previous',
+      text: '← Previous',
       cls: 'daily-review-nav-prev'
     });
     prevBtn.onclick = () => {
